@@ -14,10 +14,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Log4j2
@@ -90,7 +87,7 @@ public class BoardService {
 
     // 게시물 상세 조회 요청 중간 처리
     @Transactional // sql 여러개 돌때 하나라도 실패하면 rollback 둘다 성공해야 sql 동작
-    public Board findOneService(Long boardNo, HttpServletResponse response, HttpServletRequest request) {
+    public Board findOneService(Long boardNo, HttpServletResponse response, HttpServletRequest request, String fm) {
         log.info("findOne service start - {}", boardNo);
         Board board = repository.findOne(boardNo);
 
@@ -100,13 +97,14 @@ public class BoardService {
         // 쿠키를 조회 - 해당 이름의 쿠키가 있으면 쿠키가 들어오고 없으면 null이 들어옴
         Cookie findCookie = WebUtils.getCookie(request, "b" + boardNo);
 
-        makeViewCount(boardNo, response, findCookie);
+        makeViewCount(boardNo, response, findCookie, fm);
 
 
         return board;
     }
 
-    private void makeViewCount(Long boardNo, HttpServletResponse response, Cookie findCookie) {
+    private void makeViewCount(Long boardNo, HttpServletResponse response, Cookie findCookie, String fm) {
+        if (Objects.equals(fm, "modify")) return;
         if (findCookie == null) {
             repository.upViewCount(boardNo);
 

@@ -51,9 +51,9 @@ public class BoardController {
 
     // 게시물 상세 조회 요청
     @GetMapping("/content/{boardNo}")
-    public String content(@PathVariable Long boardNo, Page page, Model model, HttpServletResponse response, HttpServletRequest request) {
+    public String content(@PathVariable Long boardNo, Page page, Model model, HttpServletResponse response, HttpServletRequest request, String fm) {
         log.info("controller request /board/content GET - {}", boardNo);
-        Board board = boardService.findOneService(boardNo, response, request);
+        Board board = boardService.findOneService(boardNo, response, request, fm);
         log.info("return data - {}", board);
 
         model.addAttribute("p", page);
@@ -92,9 +92,9 @@ public class BoardController {
 
     // 게시물 수정 화면 요청
     @GetMapping("/modify")
-    public String modify(Long boardNo, Model model, HttpServletResponse response, HttpServletRequest request) {
+    public String modify(Long boardNo, Model model, HttpServletResponse response, HttpServletRequest request, String fm) {
         log.info("controller request /board/modify GET");
-        Board board = boardService.findOneService(boardNo, response, request);
+        Board board = boardService.findOneService(boardNo, response, request, fm);
         log.info("find article: {}", board);
         model.addAttribute("board", board);
         return "board/board-modify";
