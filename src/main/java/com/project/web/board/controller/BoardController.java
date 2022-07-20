@@ -2,6 +2,8 @@ package com.project.web.board.controller;
 
 import com.project.web.board.domain.Board;
 import com.project.web.board.service.BoardService;
+import com.project.web.common.paging.Page;
+import com.project.web.common.paging.PageMaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Controller;
@@ -12,6 +14,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @Log4j2
@@ -23,20 +26,38 @@ public class BoardController {
 
     // 게시물 목록 요청
     @GetMapping("/list")
-    public String list(Model model) {
-        log.info("controller request /board/list GET");
-        List<Board> boardList = boardService.findAllService();
-        log.debug("return data - {}", boardList);
-        model.addAttribute("bList", boardList);
+    public String list(Page page, Model model) {
+        log.info("controller request /board/list GET - {}", page);
+        Map<String, Object> boardMap = boardService.findAllService(page);
+        log.debug("return data - {}", boardMap);
+
+
+        log.info("amount: {}", page.getAmount());
+//        if (amount != 0) {
+//            page.setAmount(amount);
+//        }
+
+        // 페이지 정보 생성
+        PageMaker pm = new PageMaker(page, (Integer) boardMap.get("tc"));
+
+
+//        log.info(boardMap.get("bList"));
+        model.addAttribute("bList", boardMap.get("bList"));
+        model.addAttribute("pm", pm);
+//        model.addAttribute("am", page.getAmount());
+
         return "board/board-list";
     }
 
     // 게시물 상세 조회 요청
     @GetMapping("/content/{boardNo}")
-    public String content(@PathVariable Long boardNo, Model model, HttpServletResponse response, HttpServletRequest request) {
+    public String content(@PathVariable Long boardNo, Page page, Model model, HttpServletResponse response, HttpServletRequest request) {
         log.info("controller request /board/content GET - {}", boardNo);
         Board board = boardService.findOneService(boardNo, response, request);
         log.info("return data - {}", board);
+
+        model.addAttribute("p", page);
+
         model.addAttribute("b", board);
         return "board/board-detail";
     }

@@ -2,12 +2,13 @@ package com.project.web.board.repository;
 
 import com.project.web.board.domain.Board;
 import com.project.web.common.paging.Page;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
-public interface BoardRepository {
 
-    // 만들 때 SQL을 생각하며 넣어줄 값과 리턴타입을 생각하며 만들기
+@Mapper
+public interface BoardMapper {
 
     // 게시글 쓰기 기능
     boolean save(Board board);
