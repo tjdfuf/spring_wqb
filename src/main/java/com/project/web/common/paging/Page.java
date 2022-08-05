@@ -22,6 +22,12 @@ public class Page {
         this.sort = "Latest";
     }
 
+    public Page(int pageNum, int amount) {
+        this.pageNum = pageNum;
+        this.amount = amount;
+        this.sort = "Latest";
+    }
+
 //    public Page(int amount) {
 //        this.pageNum = 1;
 //        this.amount = amount;

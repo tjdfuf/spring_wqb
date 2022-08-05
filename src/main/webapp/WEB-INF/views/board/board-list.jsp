@@ -9,16 +9,31 @@
     <style>
         .board-list {
             width: 70%;
-            margin: 0 auto;
+            margin: 230px auto 0;
         }
 
         .board-list .articles {
-            margin: 250px auto 100px;
+            margin: 10px auto 100px;
             border-collapse: collapse;
             font-size: 1.5em;
             border-radius: 10px;
         }
 
+        /* 목록 개수별 보기 스타일 */
+        .board-list .amount {
+            display: flex;
+            /* background: skyblue; */
+            justify-content: flex-end;
+        }
+
+        .board-list .amount li {
+            width: 8%;
+            margin-right: 10px;
+        }
+
+        .board-list .amount li a {
+            width: 100%;
+        }
 
         header {
             background: #222;
@@ -44,35 +59,47 @@
 
         .pagination-custom a {
             color: #444 !important;
-
         }
 
         .pagination-custom li.active a,
         .pagination-custom li:hover a {
-            background: #333;
+            background: #333 !important;
             color: #fff !important;
         }
 
-        .wrap {
-            position: relative;
+        /* 검색창 */
+        .board-list .top-section {
+            display: flex;
+            justify-content: space-between;
         }
 
-        .countBtn {
-            position: absolute;
-            top: -50px;
-            right: 320px;
+        .board-list .top-section .search {
+            flex: 4;
         }
-        .button-custom{
-            background: #000;
-            color: #fff;
+
+        .board-list .top-section .amount {
+            flex: 4;
+        }
+
+        .board-list .top-section .search form {
+            display: flex;
+        }
+
+        .board-list .top-section .search form #search-type {
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .board-list .top-section .search form input[name=keyword] {
+            flex: 3;
         }
 
         .sortBtn {
-            position: absolute;
-            top: -50px;
-            left: 320px;
+            margin-right: 50px;
         }
-
+        .badge {
+            margin-left: 30px;
+        }
     </style>
 </head>
 
@@ -82,23 +109,45 @@
 
         <%@ include file="../include/header.jsp" %>
 
-        <div class="sortBtn">
-            <a href="/board/list?pageNum=1&amount=${pm.page.amount}&sort=Latest"><button class="btn btn-primary button-custom" type="button">최신순</button></a>
-            <a href="/board/list?pageNum=1&amount=${pm.page.amount}&sort=Popularity"><button class="btn btn-primary button-custom" type="button">인기순</button></a>
-        </div> 
-
-
-
-        <div class="countBtn">
-            <a href="/board/list?pageNum=1&amount=10&sort=${pm.page.sort}"><button class="btn btn-primary button-custom" type="button">10개</button></a>
-            <a href="/board/list?pageNum=1&amount=30&sort=${pm.page.sort}"><button class="btn btn-primary button-custom" type="button">30개</button></a>
-            <a href="/board/list?pageNum=1&amount=50&sort=${pm.page.sort}"><button class="btn btn-primary button-custom" type="button">50개</button></a>
-        </div> 
-
-        
-
-
         <div class="board-list">
+            <div class="top-section">
+                <!-- 정렬 방식 -->
+                <div class="sortBtn">
+                    <a href="/board/list?pageNum=1&amount=${pm.page.amount}&sort=Latest&type=${search.type}&keyword=${search.keyword}"><button
+                            class="btn btn-primary button-custom" type="button">최신순</button></a>
+                    <a href="/board/list?pageNum=1&amount=${pm.page.amount}&sort=Popularity&type=${search.type}&keyword=${search.keyword}"><button
+                            class="btn btn-primary button-custom" type="button">인기순</button></a>
+                </div>
+
+                <!-- 검색창 영역 -->
+                <div class="search">
+                    <form action="/board/list" method="get">
+
+                        <select class="form-select" name="type" id="search-type">
+                            <option value="title">제목</option>
+                            <option value="content">내용</option>
+                            <option value="writer">작성자</option>
+                            <option value="tc">제목+내용</option>
+                        </select>
+
+                        <input type="text" class="form-control" name="keyword" value="${search.keyword}">
+
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 목록 보기 개수 -->
+                <ul class="amount">
+                    <li><a class="btn btn-danger" href="/board/list?amount=10&type=${search.type}&keyword=${search.keyword}">10</a></li>
+                    <li><a class="btn btn-danger" href="/board/list?amount=20&type=${search.type}&keyword=${search.keyword}">20</a></li>
+                    <li><a class="btn btn-danger" href="/board/list?amount=30&type=${search.type}&keyword=${search.keyword}">30</a></li>
+                </ul>
+            </div>
+
+
+
             <table class="table table-dark table-striped table-hover articles">
                 <tr>
                     <th>번호</th>
@@ -112,7 +161,12 @@
                     <tr>
                         <td>${b.boardNo}</td>
                         <td>${b.writer}</td>
-                        <td title="${b.title}">${b.shortTitle}</td>
+                        <td title="${b.title}">
+                            ${b.shortTitle} [${b.replyCount}]
+                            <c:if test="${b.newArticle}">
+                                <span class="badge rounded-pill bg-danger">NEW</span>
+                            </c:if>
+                        </td>
                         <td>${b.viewCnt}</td>
                         <td>${b.prettierDate}</td>
                     </tr>
@@ -127,26 +181,31 @@
 
                         <c:if test="${pm.prev}">
                             <li class="page-item"><a class="page-link"
-                                    href="/board/list?pageNum=${pm.beginPage - 1}&amount=${pm.page.amount}&sort=${pm.page.sort}">이전</a></li>
+                                    href="/board/list?pageNum=${pm.beginPage - 1}&amount=${pm.page.amount}&sort=${pm.page.sort}&type=${search.type}&keyword=${search.keyword}">이전</a>
+                            </li>
                         </c:if>
 
-                        
+
                         <li class="page-item"><a class="page-link"
-                            href="/board/list?pageNum=1&amount=${pm.page.amount}&sort=${pm.page.sort}">처음으로</a>
+                                href="/board/list?pageNum=1&amount=${pm.page.amount}&sort=${pm.page.sort}&type=${search.type}&keyword=${search.keyword}">처음으로</a>
                         </li>
-                        
+
 
                         <c:forEach var="n" begin="${pm.beginPage}" end="${pm.endPage}" step="1">
-                            <li data-page-num="${n}" class="page-item"><a class="page-link" href="/board/list?pageNum=${n}&amount=${pm.page.amount}&sort=${pm.page.sort}">${n}</a></li>
+                            <li data-page-num="${n}" class="page-item"><a class="page-link"
+                                    href="/board/list?pageNum=${n}&amount=${pm.page.amount}&sort=${pm.page.sort}&type=${search.type}&keyword=${search.keyword}">${n}</a>
+                            </li>
                         </c:forEach>
 
                         <c:if test="${pm.next}">
                             <li class="page-item"><a class="page-link"
-                                    href="/board/list?pageNum=${pm.endPage + 1}&amount=${pm.page.amount}&sort=${pm.page.sort}">다음</a></li>
+                                    href="/board/list?pageNum=${pm.endPage + 1}&amount=${pm.page.amount}&sort=${pm.page.sort}&type=${search.type}&keyword=${search.keyword}">다음</a>
+                            </li>
                         </c:if>
-                        
+
                         <li class="page-item"><a class="page-link"
-                            href="/board/list?pageNum=${pm.realEnd}&amount=${pm.page.amount}&sort=${pm.page.sort}">마지막으로</a></li>
+                                href="/board/list?pageNum=${pm.realEnd}&amount=${pm.page.amount}&sort=${pm.page.sort}&type=${search.type}&keyword=${search.keyword}">마지막으로</a>
+                        </li>
                     </ul>
                 </nav>
 
@@ -174,6 +233,7 @@
             alert('게시물이 정상 등록되었습니다.');
         }
 
+        // 현재 페이지 active클래스 추가 (페이지 번호에 색 입히기)
         const pn = '${pm.page.pageNum}';
         console.log('pn: ', pn);
         const a = document.querySelector(".page-num");
@@ -184,7 +244,6 @@
                 a.children[i].classList.toggle("active");
             }
         }
-
 
 
         //상세보기 요청 이벤트
@@ -199,8 +258,28 @@
             let bn = e.target.parentElement.firstElementChild.textContent;
             console.log('글번호: ' + bn);
 
-            location.href = '/board/content/' + bn + '?pageNum=${pm.page.pageNum}&amount=${pm.page.amount}&sort=${pm.page.sort}';
+            location.href = '/board/content/' + bn +
+                '?pageNum=${pm.page.pageNum}&amount=${pm.page.amount}&sort=${pm.page.sort}';
         });
+
+
+        // 옵션태그 고정
+        function fixSearchOption() {
+            const $select = document.getElementById('search-type');
+
+            for (let $opt of [...$select.children]) {
+                if ($opt.value === '${search.type}') {
+                    $opt.setAttribute('selected', 'selected');
+                    break;
+                }
+            }
+        }
+
+        (function () {
+
+            fixSearchOption();
+
+        })();
     </script>
 
 </body>

@@ -13,16 +13,16 @@ class PageMakerTest {
     @Autowired
     BoardRepository repository;
 
-    @Test
-    void pageInfoTest() {
-
-        int totalCount = repository.getTotalCount();
-        PageMaker pm = new PageMaker(new Page(31, 10), totalCount);
-
-        System.out.println(pm);
-
-//        assertEquals(40, pm.getEndPage());
-//        assertEquals(31, pm.getBeginPage());
-    }
+//    @Test
+//    void pageInfoTest() {
+//
+//        int totalCount = repository.getTotalCount();
+//        PageMaker pm = new PageMaker(new Page(31, 10), totalCount);
+//
+//        System.out.println(pm);
+//
+////        assertEquals(40, pm.getEndPage());
+////        assertEquals(31, pm.getBeginPage());
+//    }
 
 }
