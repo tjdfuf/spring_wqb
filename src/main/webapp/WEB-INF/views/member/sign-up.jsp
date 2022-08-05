@@ -1,14 +1,10 @@
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <!DOCTYPE html>
 <html lang="ko">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
-
     <%@ include file="../include/static-head.jsp" %>
 
     <style>
@@ -21,14 +17,15 @@
         }
 
         .c-blue {
-            color: rgb(22, 229, 252);
+            color: rgb(25, 236, 120);
         }
     </style>
-
 </head>
 
 <body>
+
     <%@ include file="../include/header.jsp" %>
+
 
     <div class="container wrap">
         <div class="row">
@@ -42,6 +39,7 @@
 
                         <form action="/member/sign-up" name="signup" id="signUpForm" method="post"
                             style="margin-bottom: 0;">
+
 
                             <table style="cellpadding: 0; cellspacing: 0; margin: 0 auto; width: 100%">
                                 <tr>
@@ -134,6 +132,7 @@
         </div>
     </div>
 
+
     <script>
         // 회원가입 폼 검증
         $(document).ready(function () {
@@ -192,7 +191,7 @@
 
             }); //end id check event
 
-            //패스워드 입력값 검증.
+            //2. 패스워드 입력값 검증.
             $('#password').on('keyup', function () {
                 //비밀번호 공백 확인
                 if ($("#password").val() === "") {
@@ -299,13 +298,12 @@
 
             $('#signup-btn').on('click', e => {
 
-                if(!checkArr.includes(false)) {
+                if (!checkArr.includes(false)) {
                     $regForm.submit();
                 } else {
                     alert('입력란을 다시 확인하세요!');
                 }
-            })
-
+            });
 
 
 
@@ -313,9 +311,8 @@
     </script>
 
 
-
-
     <%@ include file="../include/footer.jsp" %>
+
 </body>
 
 </html>

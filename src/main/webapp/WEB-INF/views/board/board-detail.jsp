@@ -100,8 +100,11 @@
             </div>
 
             <div class="btn-group btn-group-lg custom-btn-group" role="group">
-                <button id="mod-btn" type="button" class="btn btn-warning">수정</button>
-                <button id="del-btn" type="button" class="btn btn-danger">삭제</button>
+
+                <c:if test="${loginUser.account == b.account || loginUser.auth == 'ADMIN'}">
+                    <button id="mod-btn" type="button" class="btn btn-warning">수정</button>
+                    <button id="del-btn" type="button" class="btn btn-danger">삭제</button>
+                </c:if>
                 <button id="list-btn" type="button" class="btn btn-dark">목록</button>
             </div>
 
@@ -112,27 +115,32 @@
                     <!-- 댓글 쓰기 영역 -->
                     <div class="card">
                         <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-9">
-                                    <div class="form-group">
-                                        <label for="newReplyText" hidden>댓글 내용</label>
-                                        <textarea rows="3" id="newReplyText" name="replyText" class="form-control"
-                                            placeholder="댓글을 입력해주세요."></textarea>
+
+                            <c:if test="${empty loginUser}">
+                                <a href="/member/sign-in">댓글은 로그인 후 작성 가능합니다.</a>
+                            </c:if>
+
+                            <c:if test="${not empty loginUser}">
+                                <div class="row">
+                                    <div class="col-md-9">
+                                        <div class="form-group">
+                                            <label for="newReplyText" hidden>댓글 내용</label>
+                                            <textarea rows="3" id="newReplyText" name="replyText" class="form-control"
+                                                placeholder="댓글을 입력해주세요."></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="newReplyWriter" hidden>댓글 작성자</label>
+                                            <input id="newReplyWriter" name="replyWriter" type="text"
+                                                value="${loginUser.name}" class="form-control" placeholder="작성자 이름"
+                                                readonly style="margin-bottom: 6px;">
+                                            <button id="replyAddBtn" type="button"
+                                                class="btn btn-dark form-control">등록</button>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <div class="form-group">
-                                        <label for="newReplyWriter" hidden>댓글 작성자</label>
-                                        <input id="newReplyWriter" name="replyWriter" type="text" class="form-control"
-                                            placeholder="작성자 이름" style="margin-bottom: 6px;">
-                                        <button id="replyAddBtn" type="button"
-                                            class="btn btn-dark form-control">등록</button>
-                                    </div>
-                                </div>
-
-
-
-                            </div>
+                            </c:if>
                         </div>
                     </div> <!-- end reply write -->
 
@@ -147,15 +155,15 @@
                         <div id="replyCollapse" class="card">
                             <div id="replyData">
                                 <!-- 
-                        < JS로 댓글 정보 DIV삽입 > 
-                     -->
+								< JS로 댓글 정보 DIV삽입 > 
+							-->
                             </div>
 
                             <!-- 댓글 페이징 영역 -->
                             <ul class="pagination justify-content-center">
                                 <!-- 
-                        < JS로 댓글 페이징 DIV삽입 > 
-                     -->
+								< JS로 댓글 페이징 DIV삽입 > 
+							-->
                             </ul>
                         </div>
                     </div> <!-- end reply content -->
@@ -206,23 +214,32 @@
 
     <!-- 게시글 상세보기 관련 script -->
     <script>
-        const [$modBtn, $delBtn, $listBtn] = [...document.querySelector('div[role=group]').children];
+        // const [$modBtn, $delBtn, $listBtn] = [...document.querySelector('div[role=group]').children];
 
-        // const $modBtn = document.getElementById('mod-btn');
-        //수정버튼
-        $modBtn.onclick = e => {
-            location.href = '/board/modify?boardNo=${b.boardNo}';
-        };
+        const $modBtn = document.getElementById('mod-btn');
+        const $delBtn = document.getElementById('del-btn');
+        const $listBtn = document.getElementById('list-btn');
 
-        //삭제버튼
-        $delBtn.onclick = e => {
-            if (!confirm('정말 삭제하시겠습니까?')) {
-                return;
-            }
-            location.href = '/board/delete?boardNo=${b.boardNo}';
-        };
+        if ($modBtn !== null) {
+            //수정버튼
+            $modBtn.onclick = e => {
+                location.href = '/board/modify?boardNo=${b.boardNo}';
+            };
+        }
+
+        if ($delBtn !== null) {
+
+            //삭제버튼
+            $delBtn.onclick = e => {
+                if (!confirm('정말 삭제하시겠습니까?')) {
+                    return;
+                }
+                location.href = '/board/delete?boardNo=${b.boardNo}';
+            };
+        }
         //목록버튼
         $listBtn.onclick = e => {
+            console.log('목록버튼 클릭!');
             location.href = '/board/list?pageNum=${p.pageNum}&amount=${p.amount}';
         };
     </script>
@@ -230,6 +247,11 @@
 
     <!-- 댓글관련 script -->
     <script>
+
+        // 로그인한 회원 계정명
+        const currentAccount = '${loginUser.account}';
+        const auth = '${loginUser.auth}';
+
         //원본 글 번호
         const bno = '${b.boardNo}';
         // console.log('bno:', bno);
@@ -334,10 +356,14 @@
                         "    </div><br>" +
                         "    <div class='row'>" +
                         "       <div class='col-md-6'>" + rep.replyText + "</div>" +
-                        "       <div class='offset-md-2 col-md-4 text-right'>" +
-                        "         <a id='replyModBtn' class='btn btn-sm btn-outline-dark' data-bs-toggle='modal' data-bs-target='#replyModifyModal'>수정</a>&nbsp;" +
-                        "         <a id='replyDelBtn' class='btn btn-sm btn-outline-dark' href='#'>삭제</a>" +
-                        "       </div>" +
+                        "       <div class='offset-md-2 col-md-4 text-right'>";
+
+                    if (currentAccount === rep.account || auth === 'ADMIN') {
+                        tag +=
+                            "         <a id='replyModBtn' class='btn btn-sm btn-outline-dark' data-bs-toggle='modal' data-bs-target='#replyModifyModal'>수정</a>&nbsp;" +
+                            "         <a id='replyDelBtn' class='btn btn-sm btn-outline-dark' href='#'>삭제</a>";
+                    }
+                    tag += "       </div>" +
                         "    </div>" +
                         " </div>";
                 }
@@ -419,7 +445,7 @@
                     if (msg === 'insert-success') {
                         alert('댓글 등록 성공');
                         // 댓글 입력창 리셋
-                        $writerInput.value = '';
+                        // $writerInput.value = '';
                         $contentInput.value = '';
                         // 댓글 목록 재요청
                         showReplies(document.querySelector('.pagination').dataset.fp);
@@ -436,10 +462,10 @@
 
             // 클릭한 버튼 근처에 있는 댓글 내용텍스트를 얻어온다.
             const replyText = e.target.parentElement.parentElement.firstElementChild.textContent;
-            //console.log('댓글내용:', replyText);
+            console.log('수정 댓글내용:', replyText);
 
             // 모달에 해당 댓글내용을 배치한다.
-            document.getElementById('modReplyText').textContent = replyText;
+            document.getElementById('modReplyText').value = replyText;
 
             // 모달을 띄울 때 다음 작업(수정완료처리)을 위해 댓글번호를 모달에 달아두자.
             const $modal = document.querySelector('.modal');
@@ -469,6 +495,7 @@
         function makeReplyModAndDelHandler(e) {
 
             const rno = e.target.parentElement.parentElement.parentElement.dataset.replyid;
+            console.log('mod get rno: ', rno);
 
             e.preventDefault();
 
@@ -498,7 +525,7 @@
 
                     // 서버에 수정 비동기 요청 보내기
                     const rno = e.target.closest('.modal').dataset.rno;
-                    // console.log(rno);
+                    console.log('mod post rno', rno);
 
                     const reqInfo = {
                         method: 'PUT',
@@ -590,7 +617,7 @@
                     $img.setAttribute('alt', originFileName);
 
                     $a.append($img);
-                    $a.innerHTML += '<span>' + originFileName + '</span';
+                    $a.innerHTML += '<span>' + originFileName + '</span>';
 
                     $('.uploaded-list').append($a);
 
